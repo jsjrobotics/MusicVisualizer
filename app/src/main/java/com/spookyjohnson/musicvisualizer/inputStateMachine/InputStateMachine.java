@@ -16,56 +16,57 @@ public class InputStateMachine {
         mState = State.STOPPED;
     }
 
-    public boolean receiveInput(int length, char[] buffer) {
+    /**
+     * Returns true when all characters in the buffer are consumed
+     * on failure, all characters in buffer are dropped.
+     * True does not mean that a complete object was generated
+     * @param length
+     * @param buffer
+     * @return
+     */
+    public Integer receiveInput(int length, char[] buffer) {
         if(mState != State.STOPPED){
             throw new IllegalArgumentException("Can't receive input unless in stopped state");
         }
+        int received = 0;
         mState = nextState();
         for(int index = 0; index < length; index++){
             char in = buffer[index];
             switch(mState){
-                case STOPPED:
-                    return true;
                 case AWAITING_START:
                     if(!mCommandParameter.acceptChar(in)){
                         index--;
-                        mState = nextState();
-                        if(!mCommandParameter.isValidParameter()){
-                            reset();
-                            return false;
+                        if(mCommandParameter.isValidParameter()){
+                            mState = nextState();
+                        } else {
+                            mCommandParameter.shiftLeft();
                         }
                     }
                     break;
                 case AWAITING_DATA:
                     if(!mDataParameter.acceptChar(in)){
                         reset();
-                        return false;
+                        return -1;
                     }
                     if(mDataParameter.isValidParameter()){
-                        break;
+                        received++;
+                        mCallback.accept(
+                            new RequestFromStream(
+                                    mCommandParameter.getBuffer(),
+                                    mDataParameter.getParsedData()
+                            )
+                        );
+                        mCommandParameter.clear();
+                        mDataParameter.clear();
+                        mState = State.AWAITING_START;
                     }
                     break;
                 default:
                     throw new IllegalArgumentException("Default case reached in receive input");
             }
         }
-        if(!mDataParameter.isValidParameter()){
-            reset();
-            return false;
-        }
-        mState = nextState();
-        if(mState != State.PROCESSING){
-            reset();
-            return false;
-        }
-        mCallback.accept(
-                new RequestFromStream(
-                        mCommandParameter.getBuffer(),
-                        mDataParameter.getParsedData()
-                )
-        );
-        mState = nextState();
-        return true;
+
+        return received;
     }
 
     private void reset() {
@@ -81,8 +82,6 @@ public class InputStateMachine {
             case AWAITING_START:
                 return State.AWAITING_DATA;
             case AWAITING_DATA:
-                return State.PROCESSING;
-            case PROCESSING:
                 return State.STOPPED;
             default:
                 throw new IllegalArgumentException("Unknown state");

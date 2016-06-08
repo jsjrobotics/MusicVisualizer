@@ -102,4 +102,11 @@ public class ParameterFromStream {
     public char[] getParsedData() {
         return Arrays.copyOfRange(mBuffer, 0, mIndex - END_DATA_TOKEN.length());
     }
+
+    public void shiftLeft() {
+        for(int index = 0; index < mBuffer.length-1; index++){
+            mBuffer[index] = mBuffer[index+1];
+        }
+        mIndex--;
+    }
 }
