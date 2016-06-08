@@ -7,13 +7,21 @@ import java.util.List;
 public class ParameterFromStream {
     private static final int NO_SET_LENGTH = -1;
     public static final String END_DATA_TOKEN = "/END";
+    private static final int DEFAULT_BUFFER_SIZE = 1024;
     private final char[] mBuffer;
     private final int mValidLength;
     private int mIndex;
     private final List<char[]> mValidValues;
 
+    public ParameterFromStream(){
+        this(NO_SET_LENGTH, Collections.<char[]>emptyList());
+    }
     public ParameterFromStream(int validValueLength, List<char[]> validValues) {
-        mBuffer = new char[validValueLength];
+        if(validValueLength == NO_SET_LENGTH){
+            mBuffer = new char[DEFAULT_BUFFER_SIZE];
+        } else {
+            mBuffer = new char[validValueLength];
+        }
         mValidLength = validValueLength;
         mIndex = 0;
         for(char[] array : validValues){
@@ -22,6 +30,10 @@ public class ParameterFromStream {
             }
         }
         mValidValues = validValues;
+    }
+
+    public char[] getBuffer(){
+        return mBuffer;
     }
 
     public void clear(){
@@ -37,21 +49,17 @@ public class ParameterFromStream {
         return true;
     }
 
-    public boolean checkValidParameter(){
+    public boolean isValidParameter(){
         if(mValidLength == NO_SET_LENGTH){
-            if(mIndex < END_DATA_TOKEN.length()){
-                return false;
-            }
-            StringBuilder lastTokens = new StringBuilder();
-            for(int index = mIndex-END_DATA_TOKEN.length(); index < mIndex; index++){
-                lastTokens.append(index);
-            }
-            if(lastTokens.toString().equals(END_DATA_TOKEN)){
-                return true;
-            }
-            return false;
+            return isLastReceivedEndDataToken();
         }
-        else if(mIndex != mValidLength){
+        else {
+            return isValidValueInBuffer();
+        }
+    }
+
+    private boolean isValidValueInBuffer() {
+        if(mIndex != mValidLength){
             return false;
         }
         for(char[] array : mValidValues){
@@ -62,14 +70,25 @@ public class ParameterFromStream {
         return false;
     }
 
+    private boolean isLastReceivedEndDataToken() {
+        if(mIndex < END_DATA_TOKEN.length()){
+            return false;
+        }
+        StringBuilder lastTokens = new StringBuilder();
+        for(int index = mIndex-END_DATA_TOKEN.length(); index < mIndex; index++){
+            lastTokens.append(mBuffer[index]);
+        }
+        return lastTokens.toString().equals(END_DATA_TOKEN);
+    }
+
     public static ParameterFromStream command() {
         List<char[]> v = getValidCommandValues();
         return new ParameterFromStream(v.get(0).length, v);
     }
 
     private static List<char[]> getValidCommandValues() {
-        char[] command1 = {'c', 'o', 'm', 'm'};
-        char[] command2 = {};
+        char[] command1 = {'t', 'e', 's', 't'};
+        char[] command2 = {'n', 'o', 'n', 'e'};
         return Arrays.asList(
                 command1,
                 command2
@@ -77,6 +96,10 @@ public class ParameterFromStream {
     }
 
     public static ParameterFromStream data() {
-        return new ParameterFromStream(1024, null);
+        return new ParameterFromStream();
+    }
+
+    public char[] getParsedData() {
+        return Arrays.copyOfRange(mBuffer, 0, mIndex - END_DATA_TOKEN.length());
     }
 }

@@ -1,6 +1,8 @@
 package com.spookyjohnson.musicvisualizer;
 
+import com.spookyjohnson.musicvisualizer.functional.Receiver;
 import com.spookyjohnson.musicvisualizer.inputStateMachine.InputStateMachine;
+import com.spookyjohnson.musicvisualizer.inputStateMachine.RequestFromStream;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,8 +14,8 @@ public class SpookyBoxConnection {
 
     private final InputStateMachine mInputStateMachine;
 
-    public SpookyBoxConnection(){
-        mInputStateMachine = new InputStateMachine();
+    public SpookyBoxConnection(Receiver<RequestFromStream> receiver){
+        mInputStateMachine = new InputStateMachine(receiver);
     }
     public void connect(){
         HttpURLConnection urlConnection = null;
