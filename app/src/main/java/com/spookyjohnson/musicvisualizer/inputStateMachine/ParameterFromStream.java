@@ -1,9 +1,12 @@
 package com.spookyjohnson.musicvisualizer.inputStateMachine;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class ParameterFromStream {
+    private static final int NO_SET_LENGTH = -1;
+    public static final String END_DATA_TOKEN = "/END";
     private final char[] mBuffer;
     private final int mValidLength;
     private int mIndex;
@@ -35,7 +38,20 @@ public class ParameterFromStream {
     }
 
     public boolean checkValidParameter(){
-        if(mIndex != mValidLength){
+        if(mValidLength == NO_SET_LENGTH){
+            if(mIndex < END_DATA_TOKEN.length()){
+                return false;
+            }
+            StringBuilder lastTokens = new StringBuilder();
+            for(int index = mIndex-END_DATA_TOKEN.length(); index < mIndex; index++){
+                lastTokens.append(index);
+            }
+            if(lastTokens.toString().equals(END_DATA_TOKEN)){
+                return true;
+            }
+            return false;
+        }
+        else if(mIndex != mValidLength){
             return false;
         }
         for(char[] array : mValidValues){
@@ -58,5 +74,9 @@ public class ParameterFromStream {
                 command1,
                 command2
         );
+    }
+
+    public static ParameterFromStream data() {
+        return new ParameterFromStream(1024, null);
     }
 }
