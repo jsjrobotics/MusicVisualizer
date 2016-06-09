@@ -13,15 +13,19 @@ import java.net.URL;
 public class SpookyBoxConnection {
 
     private final InputStateMachine mInputStateMachine;
+    private final URL mUrl;
+    private boolean mIsDisconnecting = true;
 
-    public SpookyBoxConnection(Receiver<RequestFromStream> receiver){
+    public SpookyBoxConnection(URL url, Receiver<RequestFromStream> receiver){
+        mUrl = url;
         mInputStateMachine = new InputStateMachine(receiver);
     }
     public void connect(){
+        mIsDisconnecting = false;
         HttpURLConnection urlConnection = null;
         try {
-            URL url = new URL("http://www.android.com/");
-            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection = (HttpURLConnection) mUrl.openConnection();
+            urlConnection.setConnectTimeout(10000);
             InputStreamReader in =new InputStreamReader(urlConnection.getInputStream());
             readStream(in);
         } catch (MalformedURLException e) {
@@ -35,10 +39,16 @@ public class SpookyBoxConnection {
         }
     }
 
+    public void disconnect(){
+        mIsDisconnecting = true;
+    }
+
     private void readStream(InputStreamReader in) {
         try {
-            char[] buffer = new char[100];
-            mInputStateMachine.receiveInput(in.read(buffer), buffer);
+            while(true && !mIsDisconnecting) {
+                char[] buffer = new char[100];
+                mInputStateMachine.receiveInput(in.read(buffer), buffer);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

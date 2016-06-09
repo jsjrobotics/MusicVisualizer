@@ -1,8 +1,15 @@
 package com.spookyjohnson.musicvisualizer.inputStateMachine;
 
+import android.util.Log;
+
 import com.spookyjohnson.musicvisualizer.functional.Receiver;
 
+/**
+ * InputStateMachine expects to receive data from a constantly polled input stream.
+ * Will search the stream input for a command and data pair
+ */
 public class InputStateMachine {
+    private static final String TAG = "InputStateMachine";
     private final ParameterFromStream mCommandParameter;
     private final ParameterFromStream mDataParameter;
     private final Receiver<RequestFromStream> mCallback;
@@ -34,6 +41,8 @@ public class InputStateMachine {
             char in = buffer[index];
             switch(mState){
                 case AWAITING_START:
+                    // Command parameter accepts input until it is time to check if valid
+                    // If not valid, shift left to make room for input
                     if(!mCommandParameter.acceptChar(in)){
                         index--;
                         if(mCommandParameter.isValidParameter()){
@@ -44,10 +53,13 @@ public class InputStateMachine {
                     }
                     break;
                 case AWAITING_DATA:
+                    // If data parameter doesn't accept input, overflow has occured
                     if(!mDataParameter.acceptChar(in)){
+                        Log.e(TAG, "data parameter didn't accept data");
                         reset();
                         return -1;
                     }
+                    // If is valid, notify callback and return to start state
                     if(mDataParameter.isValidParameter()){
                         received++;
                         mCallback.accept(
