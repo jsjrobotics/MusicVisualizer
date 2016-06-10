@@ -26,6 +26,9 @@ public class SpookyBoxConnection {
         try {
             urlConnection = (HttpURLConnection) mUrl.openConnection();
             urlConnection.setConnectTimeout(10000);
+            urlConnection.setDoInput(true);
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
             InputStreamReader in =new InputStreamReader(urlConnection.getInputStream());
             readStream(in);
         } catch (MalformedURLException e) {

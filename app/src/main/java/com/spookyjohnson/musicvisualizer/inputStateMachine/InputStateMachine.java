@@ -20,7 +20,7 @@ public class InputStateMachine {
         mCallback = callback;
         mCommandParameter = ParameterFromStream.command();
         mDataParameter = ParameterFromStream.data();
-        mState = State.STOPPED;
+        mState = State.AWAITING_START;
     }
 
     /**
@@ -32,11 +32,7 @@ public class InputStateMachine {
      * @return
      */
     public Integer receiveInput(int length, char[] buffer) {
-        if(mState != State.STOPPED){
-            throw new IllegalArgumentException("Can't receive input unless in stopped state");
-        }
         int received = 0;
-        mState = nextState();
         for(int index = 0; index < length; index++){
             char in = buffer[index];
             switch(mState){
@@ -70,7 +66,7 @@ public class InputStateMachine {
                         );
                         mCommandParameter.clear();
                         mDataParameter.clear();
-                        mState = State.AWAITING_START;
+                        mState = nextState();
                     }
                     break;
                 default:
@@ -84,17 +80,15 @@ public class InputStateMachine {
     private void reset() {
         mDataParameter.clear();
         mCommandParameter.clear();
-        mState = State.STOPPED;
+        mState = State.AWAITING_START;
     }
 
     private State nextState() {
         switch(mState){
-            case STOPPED:
-                return State.AWAITING_START;
             case AWAITING_START:
                 return State.AWAITING_DATA;
             case AWAITING_DATA:
-                return State.STOPPED;
+                return State.AWAITING_START;
             default:
                 throw new IllegalArgumentException("Unknown state");
         }
