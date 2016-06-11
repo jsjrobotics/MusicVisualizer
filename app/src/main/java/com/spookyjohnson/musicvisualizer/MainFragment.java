@@ -33,7 +33,7 @@ public class MainFragment extends android.app.Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mSpookyBoxPresenter = new SpookyBoxPresenter("http://10.89.196.6:8000", new Receiver<RequestFromStream>() {
+        mSpookyBoxPresenter = new SpookyBoxPresenter("http://192.168.122.1:8000", new Receiver<RequestFromStream>() {
             @Override
             public void accept(RequestFromStream data) {
                 Log.e("MainFragment", "Received request from stream: "+data.mData[data.mData.length-1]);
