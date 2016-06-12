@@ -23,7 +23,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.spookyjohnson.musicvisualizer.functional.Receiver;
+import com.spookyjohnson.musicvisualizer.inputStateMachine.ParameterFromStream;
 import com.spookyjohnson.musicvisualizer.inputStateMachine.RequestFromStream;
+
+import java.util.Arrays;
 
 public class MainFragment extends android.app.Fragment {
     private SpookyBoxPresenter mSpookyBoxPresenter;
@@ -33,12 +36,50 @@ public class MainFragment extends android.app.Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mSpookyBoxPresenter = new SpookyBoxPresenter("http://192.168.122.1:8000", new Receiver<RequestFromStream>() {
+        mSpookyBoxPresenter = new SpookyBoxPresenter("http://192.168.1.11:8000", new Receiver<RequestFromStream>() {
             @Override
             public void accept(RequestFromStream data) {
-                Log.e("MainFragment", "Received request from stream: "+data.mData[data.mData.length-1]);
+                if(ParameterFromStream.equalsNoneCommand(data)){
+                    Log.e("MainFragment", "Received none command");
+                } else if(ParameterFromStream.equalsTestCommand(data)){
+                    String dataBuffer = String.valueOf(data.mData);
+                    int[][] downscaledMatrix = readDownscaledMatrix(dataBuffer);
+                    while(downscaledMatrix != null){
+                        int endIndex = dataBuffer.indexOf("/END");
+                        dataBuffer = dataBuffer.substring(endIndex+4);
+                        drawDownscaledMatrix(downscaledMatrix);
+                        downscaledMatrix = readDownscaledMatrix(dataBuffer);
+                    }
+
+                    Log.e("MainFragment", "Received request from stream: "+data.mData[data.mData.length-1]);
+                }
             }
         });
+    }
+
+    private void drawDownscaledMatrix(int[][] downscaledMatrix) {
+        System.out.println("Received matrix");
+    }
+
+    private int[][] readDownscaledMatrix(String input) {
+        if(input == null || input.isEmpty()){
+            return null;
+        }
+        String[] tokens = input.split(":");
+        if(!tokens[0].equals("DEPTH")){
+            System.out.println("Expected a depth stream");
+            return null;
+        }
+        int height = Integer.valueOf(tokens[1].replace("Height", ""));
+        int width = Integer.valueOf(tokens[2].replace("Width", ""));
+        int[][] result = new int[height][width];
+        for(int yIndex = 0; yIndex < height; yIndex++){
+            int yOffset = yIndex * width;
+            for(int xIndex = 0; xIndex < width; xIndex++){
+                result[yIndex][xIndex] = Integer.valueOf(tokens[yOffset + xIndex],16);
+            }
+        }
+        return result;
     }
 
     @Override
@@ -55,4 +96,5 @@ public class MainFragment extends android.app.Fragment {
         mConnect.setOnClickListener(mSpookyBoxPresenter.getClickListener());
         mConnect.setBackgroundColor(Color.GREEN);
     }
+
 }

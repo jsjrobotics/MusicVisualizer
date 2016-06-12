@@ -4,6 +4,8 @@ import android.util.Log;
 
 import com.spookyjohnson.musicvisualizer.functional.Receiver;
 
+import java.util.Arrays;
+
 /**
  * InputStateMachine expects to receive data from a constantly polled input stream.
  * Will search the stream input for a command and data pair
@@ -49,6 +51,12 @@ public class InputStateMachine {
                     }
                     break;
                 case AWAITING_DATA:
+                    if(commandEqualsNone()){
+                        received++;
+                        mCallback.accept(new RequestFromStream(mCommandParameter.getBuffer(), null));
+                        clearInputAndNextState();
+                        break;
+                    }
                     // If data parameter doesn't accept input, overflow has occured
                     if(!mDataParameter.acceptChar(in)){
                         Log.e(TAG, "data parameter didn't accept data");
@@ -64,9 +72,7 @@ public class InputStateMachine {
                                     mDataParameter.getParsedData()
                             )
                         );
-                        mCommandParameter.clear();
-                        mDataParameter.clear();
-                        mState = nextState();
+                        clearInputAndNextState();
                     }
                     break;
                 default:
@@ -75,6 +81,16 @@ public class InputStateMachine {
         }
 
         return received;
+    }
+
+    private boolean commandEqualsNone() {
+        return Arrays.equals(mCommandParameter.getParsedData(), ParameterFromStream.NONE_COMMAND);
+    }
+
+    private void clearInputAndNextState() {
+        mDataParameter.clear();
+        mCommandParameter.clear();
+        mState = nextState();
     }
 
     private void reset() {

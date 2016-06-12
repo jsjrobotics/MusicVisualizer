@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class ParameterFromStream {
+    public static final char[] TEST_COMMAND = {'t', 'e', 's', 't'};
+    public static final char[] NONE_COMMAND = {'n', 'o', 'n', 'e'};
     private static final int NO_SET_LENGTH = -1;
     public static final String END_DATA_TOKEN = "/END";
     private static final int DEFAULT_BUFFER_SIZE = 1024;
@@ -30,6 +32,14 @@ public class ParameterFromStream {
             }
         }
         mValidValues = validValues;
+    }
+
+    public static boolean equalsNoneCommand(RequestFromStream data){
+        return Arrays.equals(data.mCommand, ParameterFromStream.NONE_COMMAND);
+    }
+
+    public static boolean equalsTestCommand(RequestFromStream data){
+        return Arrays.equals(data.mCommand, ParameterFromStream.TEST_COMMAND);
     }
 
     public char[] getBuffer(){
@@ -87,11 +97,9 @@ public class ParameterFromStream {
     }
 
     private static List<char[]> getValidCommandValues() {
-        char[] command1 = {'t', 'e', 's', 't'};
-        char[] command2 = {'n', 'o', 'n', 'e'};
         return Arrays.asList(
-                command1,
-                command2
+                TEST_COMMAND,
+                NONE_COMMAND
         );
     }
 
