@@ -31,6 +31,12 @@ import com.spookyjohnson.musicvisualizer.inputStateMachine.RequestFromStream;
 import java.util.Arrays;
 
 public class MainFragment extends android.app.Fragment {
+    private static final int[][] TEST_MATRIX = {
+            {0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFF0000},
+            {0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFF0000},
+            {0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFF0000},
+            {0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFF0000}
+    };
     private SpookyBoxPresenter mSpookyBoxPresenter;
 
     private Button mConnect;
@@ -64,7 +70,13 @@ public class MainFragment extends android.app.Fragment {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mGridView.setAdapter(new GridViewAdapter(getActivity(),downscaledMatrix));
+                GridViewAdapter adapter = new GridViewAdapter(getActivity(), TEST_MATRIX);
+                mGridView.setAdapter(adapter);
+                mGridView.setNumColumns(TEST_MATRIX.length);
+                mGridView.setStretchMode(GridView.NO_STRETCH);
+                mGridView.setVerticalSpacing(0);
+                mGridView.setHorizontalSpacing(0);
+                mGridView.setColumnWidth(adapter.getViewWidth());
                 mGridView.invalidate();
             }
         });
@@ -105,6 +117,7 @@ public class MainFragment extends android.app.Fragment {
         mConnect = (Button) getView().findViewById(R.id.connect);
         mConnect.setOnClickListener(mSpookyBoxPresenter.getClickListener());
         mConnect.setBackgroundColor(Color.GREEN);
+        drawDownscaledMatrix(null);
     }
 
 }

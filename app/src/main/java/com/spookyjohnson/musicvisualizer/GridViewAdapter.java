@@ -10,10 +10,8 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 
-/**
- * Created by spooky on 6/12/16.
- */
 public class GridViewAdapter extends BaseAdapter {
+    private static final int VIEW_WIDTH = 85;
     private final int[][] mData;
     private Context mContext;
 
@@ -41,9 +39,7 @@ public class GridViewAdapter extends BaseAdapter {
         if (convertView == null) {
             // if it's not recycled, initialize some attributes
             imageView = new ImageView(mContext);
-            imageView.setLayoutParams(new GridView.LayoutParams(85, 85));
-            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            imageView.setPadding(8, 8, 8, 8);
+            imageView.setLayoutParams(new GridView.LayoutParams(VIEW_WIDTH, VIEW_WIDTH));
         } else {
             imageView = (ImageView) convertView;
         }
@@ -55,4 +51,7 @@ public class GridViewAdapter extends BaseAdapter {
         return imageView;
     }
 
+    public int getViewWidth() {
+        return VIEW_WIDTH;
+    }
 }

@@ -10,10 +10,6 @@
     <GridView android:id="@+id/matrix_holder"
         android:layout_width="match_parent"
         android:layout_height="400dp"
-        android:columnWidth="90dp"
-        android:numColumns="6"
-        android:verticalSpacing="10dp"
-        android:horizontalSpacing="10dp"
         android:gravity="center"
         />
 </LinearLayout>
