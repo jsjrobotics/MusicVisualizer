@@ -14,110 +14,34 @@
 
 package com.spookyjohnson.musicvisualizer;
 
-import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.GridView;
-import android.widget.ListAdapter;
-
-import com.spookyjohnson.musicvisualizer.functional.Receiver;
-import com.spookyjohnson.musicvisualizer.inputStateMachine.ParameterFromStream;
-import com.spookyjohnson.musicvisualizer.inputStateMachine.RequestFromStream;
-
-import java.util.Arrays;
 
 public class MainFragment extends android.app.Fragment {
-    private static final int[][] TEST_MATRIX = {
-            {0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFF0000},
-            {0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFF0000},
-            {0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFF0000},
-            {0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFF0000}
-    };
     private SpookyBoxPresenter mSpookyBoxPresenter;
 
     private Button mConnect;
-    private GridView mGridView;
+    private SpookyBoxView mView;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mSpookyBoxPresenter = new SpookyBoxPresenter("http://192.168.1.11:8000", new Receiver<RequestFromStream>() {
-            @Override
-            public void accept(RequestFromStream data) {
-                if(ParameterFromStream.equalsNoneCommand(data)){
-                    Log.e("MainFragment", "Received none command");
-                } else if(ParameterFromStream.equalsTestCommand(data)){
-                    String dataBuffer = String.valueOf(data.mData);
-                    int[][] downscaledMatrix = readDownscaledMatrix(dataBuffer);
-                    while(downscaledMatrix != null){
-                        int endIndex = dataBuffer.indexOf("/END");
-                        dataBuffer = dataBuffer.substring(endIndex+4);
-                        drawDownscaledMatrix(downscaledMatrix);
-                        downscaledMatrix = readDownscaledMatrix(dataBuffer);
-                    }
-
-                    Log.e("MainFragment", "Received request from stream: "+data.mData[data.mData.length-1]);
-                }
-            }
-        });
-    }
-
-    private void drawDownscaledMatrix(final int[][] downscaledMatrix) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                GridViewAdapter adapter = new GridViewAdapter(getActivity(), TEST_MATRIX);
-                mGridView.setAdapter(adapter);
-                mGridView.setNumColumns(TEST_MATRIX.length);
-                mGridView.setStretchMode(GridView.NO_STRETCH);
-                mGridView.setVerticalSpacing(0);
-                mGridView.setHorizontalSpacing(0);
-                mGridView.setColumnWidth(adapter.getViewWidth());
-                mGridView.invalidate();
-            }
-        });
-    }
-
-    private int[][] readDownscaledMatrix(String input) {
-        if(input == null || input.isEmpty()){
-            return null;
-        }
-        String[] tokens = input.split(":");
-        if(!tokens[0].equals("DEPTH")){
-            System.out.println("Expected a depth stream");
-            return null;
-        }
-        int height = Integer.valueOf(tokens[1].replace("Height", ""));
-        int width = Integer.valueOf(tokens[2].replace("Width", ""));
-        int[][] result = new int[height][width];
-        for(int yIndex = 0; yIndex < height; yIndex++){
-            int yOffset = yIndex * width;
-            for(int xIndex = 3; xIndex < width; xIndex++){
-                result[yIndex][xIndex] = (int) Long.parseLong(tokens[yOffset + xIndex],16);
-            }
-        }
-        return result;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-        View view = inflater.inflate(R.layout.fragment_main, container, false);
-        mGridView = (GridView) view.findViewById(R.id.matrix_holder);
-        return view;
+        mView = new SpookyBoxView(getActivity(), inflater, container);
+        return mView.getLayout();
     }
 
 
     @Override
     public void onResume(){
         super.onResume();
-        mConnect = (Button) getView().findViewById(R.id.connect);
-        mConnect.setOnClickListener(mSpookyBoxPresenter.getClickListener());
-        mConnect.setBackgroundColor(Color.GREEN);
-        drawDownscaledMatrix(null);
+        mSpookyBoxPresenter = new SpookyBoxPresenter(mView, "http://192.168.1.11:8000");
     }
 
 }

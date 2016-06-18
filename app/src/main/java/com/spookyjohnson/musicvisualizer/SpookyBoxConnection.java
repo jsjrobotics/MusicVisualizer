@@ -12,14 +12,15 @@ import java.net.URL;
 
 public class SpookyBoxConnection {
 
-    private final InputStateMachine mInputStateMachine;
     private final URL mUrl;
+    private final Receiver<String> mReceiver;
     private boolean mIsDisconnecting = true;
 
-    public SpookyBoxConnection(URL url, Receiver<RequestFromStream> receiver){
+    public SpookyBoxConnection(URL url, Receiver<String> receiver){
         mUrl = url;
-        mInputStateMachine = new InputStateMachine(receiver);
+        mReceiver = receiver;
     }
+
     public void connect(){
         mIsDisconnecting = false;
         HttpURLConnection urlConnection = null;
@@ -48,10 +49,14 @@ public class SpookyBoxConnection {
 
     private void readStream(InputStreamReader in) {
         try {
-            while(true && !mIsDisconnecting) {
-                char[] buffer = new char[100];
-                mInputStateMachine.receiveInput(in.read(buffer), buffer);
+            StringBuilder data = new StringBuilder();
+            char[] inputBuffer = new char[500];
+            int read = in.read(inputBuffer);
+            while(!mIsDisconnecting && read != -1) {
+                data.append(inputBuffer,0,read);
+                read = in.read(inputBuffer);
             }
+            mReceiver.accept(data.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
