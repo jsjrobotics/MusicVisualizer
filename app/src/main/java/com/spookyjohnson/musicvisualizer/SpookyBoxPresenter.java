@@ -81,7 +81,9 @@ public class SpookyBoxPresenter {
             }
             mIsConnected = true;
             mThread = new Thread(() -> {
-                onConnectClicked();
+                for(int index = 0; index < 100;){
+                    onConnectClicked();
+                }
                 mIsConnected = false;
                 mView.enableConnectButton();
             });

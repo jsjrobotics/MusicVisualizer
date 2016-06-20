@@ -24,7 +24,7 @@ public class GridViewAdapter extends BaseAdapter {
         Display display = wm.getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
-        mViewWidth = size.x / downscaledMatrix.length;
+        mViewWidth = 40;//size.x / downscaledMatrix.length;
         mData = downscaledMatrix;
     }
 
@@ -52,8 +52,8 @@ public class GridViewAdapter extends BaseAdapter {
             imageView = (ImageView) convertView;
         }
 
-        int yIndex = position / mData.length;
-        int xIndex = position - (yIndex * mData.length);
+        int yIndex = position / mData[0].length;
+        int xIndex = position - (yIndex * mData[0].length);
         imageView.setBackgroundColor(mData[yIndex][xIndex]);
         return imageView;
     }
