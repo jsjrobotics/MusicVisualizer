@@ -15,15 +15,17 @@ import java.util.List;
 
 public class SpookyBoxView {
     private final View mView;
-    private final GridView mGridView;
+    private final GridView mDownscaledView;
     private final Activity mActivity;
     private final Button mConnect;
+    private final SoundMaker mSoundMaker;
     private List<Receiver<Void>> mOnConnectClicked = new ArrayList<>();
 
     public SpookyBoxView(Activity activity, LayoutInflater inflater, ViewGroup container) {
         mActivity = activity;
         mView = inflater.inflate(R.layout.fragment_main, container, false);
-        mGridView = (GridView) mView.findViewById(R.id.matrix_holder);
+        mDownscaledView = (GridView) mView.findViewById(R.id.matrix_holder);
+        mSoundMaker = new SoundMaker(activity);
         mConnect = (Button) mView.findViewById(R.id.connect);
         mConnect.setOnClickListener(v -> {
             for(Receiver<Void> r : mOnConnectClicked){
@@ -41,13 +43,17 @@ public class SpookyBoxView {
     public void drawDownscaledMatrix(final int[][] downscaledMatrix) {
         mActivity.runOnUiThread(() -> {
             GridViewAdapter adapter = new GridViewAdapter(mActivity, downscaledMatrix);
-            mGridView.setAdapter(adapter);
-            mGridView.setNumColumns(downscaledMatrix.length);
-            mGridView.setStretchMode(GridView.NO_STRETCH);
-            mGridView.setVerticalSpacing(0);
-            mGridView.setHorizontalSpacing(0);
-            mGridView.setColumnWidth(adapter.getViewWidth());
-            mGridView.invalidate();
+            mDownscaledView.setAdapter(adapter);
+            mDownscaledView.setNumColumns(downscaledMatrix.length);
+            mDownscaledView.setStretchMode(GridView.NO_STRETCH);
+            mDownscaledView.setVerticalSpacing(0);
+            mDownscaledView.setHorizontalSpacing(0);
+            mDownscaledView.setColumnWidth(adapter.getViewWidth());
+            mDownscaledView.invalidate();
+
+            mSoundMaker.accept(downscaledMatrix);
+
+
         });
     }
 

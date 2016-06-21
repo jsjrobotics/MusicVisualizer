@@ -41,7 +41,7 @@ public class MainFragment extends android.app.Fragment {
     @Override
     public void onResume(){
         super.onResume();
-        mSpookyBoxPresenter = new SpookyBoxPresenter(mView, "http://10.89.196.100:8000");
+        mSpookyBoxPresenter = new SpookyBoxPresenter(mView, "http://192.168.1.11:8000");
     }
 
 }
