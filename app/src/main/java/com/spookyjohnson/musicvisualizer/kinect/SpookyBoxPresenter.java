@@ -1,10 +1,6 @@
-package com.spookyjohnson.musicvisualizer;
-
-import android.graphics.Color;
-import android.view.View;
+package com.spookyjohnson.musicvisualizer.kinect;
 
 import com.spookyjohnson.musicvisualizer.functional.Receiver;
-import com.spookyjohnson.musicvisualizer.inputStateMachine.RequestFromStream;
 
 import org.json.JSONArray;
 import org.json.JSONException;

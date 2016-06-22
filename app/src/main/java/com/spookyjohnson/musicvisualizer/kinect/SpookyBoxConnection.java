@@ -1,4 +1,4 @@
-package com.spookyjohnson.musicvisualizer;
+package com.spookyjohnson.musicvisualizer.kinect;
 
 import com.spookyjohnson.musicvisualizer.functional.Receiver;
 import com.spookyjohnson.musicvisualizer.inputStateMachine.InputStateMachine;

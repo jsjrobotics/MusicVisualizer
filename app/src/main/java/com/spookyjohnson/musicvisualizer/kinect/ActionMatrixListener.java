@@ -1,4 +1,4 @@
-package com.spookyjohnson.musicvisualizer;
+package com.spookyjohnson.musicvisualizer.kinect;
 
 public abstract class ActionMatrixListener {
     abstract boolean matches(int[][] input);

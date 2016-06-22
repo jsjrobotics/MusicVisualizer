@@ -1,7 +1,9 @@
-package com.spookyjohnson.musicvisualizer;
+package com.spookyjohnson.musicvisualizer.kinect;
 
 import android.content.Context;
 import android.media.MediaPlayer;
+
+import com.spookyjohnson.musicvisualizer.R;
 
 public class SoundMaker extends ActionMatrixListener{
 

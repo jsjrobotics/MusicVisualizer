@@ -15,13 +15,21 @@
 package com.spookyjohnson.musicvisualizer;
 
 import android.app.Activity;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 
+import com.spookyjohnson.musicvisualizer.R;
+import com.spookyjohnson.musicvisualizer.openGl.SpookyDisplay;
+
 public class MainActivity extends Activity {
+
+    private GLSurfaceView mGlView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mGlView = new SpookyDisplay(this);
+        //setContentView(mGlView);
     }
 }

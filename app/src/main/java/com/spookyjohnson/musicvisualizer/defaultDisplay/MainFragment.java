@@ -12,13 +12,16 @@
  * the License.
  */
 
-package com.spookyjohnson.musicvisualizer;
+package com.spookyjohnson.musicvisualizer.defaultDisplay;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import com.spookyjohnson.musicvisualizer.kinect.SpookyBoxPresenter;
+import com.spookyjohnson.musicvisualizer.kinect.SpookyBoxView;
 
 public class MainFragment extends android.app.Fragment {
     private SpookyBoxPresenter mSpookyBoxPresenter;

@@ -1,4 +1,4 @@
-package com.spookyjohnson.musicvisualizer;
+package com.spookyjohnson.musicvisualizer.kinect;
 
 import android.app.Activity;
 import android.graphics.Color;
@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.GridView;
 
+import com.spookyjohnson.musicvisualizer.R;
+import com.spookyjohnson.musicvisualizer.defaultDisplay.GridViewAdapter;
 import com.spookyjohnson.musicvisualizer.functional.Receiver;
 
 import java.util.ArrayList;

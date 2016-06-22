@@ -1,4 +1,4 @@
-package com.spookyjohnson.musicvisualizer;
+package com.spookyjohnson.musicvisualizer.defaultDisplay;
 
 import android.content.Context;
 import android.graphics.Color;
