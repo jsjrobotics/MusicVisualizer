@@ -1,13 +1,10 @@
 package com.spookyjohnson.musicvisualizer.kinect;
 
 import com.spookyjohnson.musicvisualizer.functional.Receiver;
-import com.spookyjohnson.musicvisualizer.inputStateMachine.InputStateMachine;
-import com.spookyjohnson.musicvisualizer.inputStateMachine.RequestFromStream;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 public class SpookyBoxConnection {
@@ -24,6 +21,7 @@ public class SpookyBoxConnection {
     public void connect(){
         mIsDisconnecting = false;
         HttpURLConnection urlConnection = null;
+        String data = null;
         try {
             urlConnection = (HttpURLConnection) mUrl.openConnection();
             urlConnection.setConnectTimeout(10000);
@@ -31,9 +29,7 @@ public class SpookyBoxConnection {
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
             InputStreamReader in =new InputStreamReader(urlConnection.getInputStream());
-            readStream(in);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+            data = readStream(in);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -41,13 +37,16 @@ public class SpookyBoxConnection {
                 urlConnection.disconnect();
             }
         }
+        if(data != null){
+            mReceiver.accept(data);
+        }
     }
 
     public void disconnect(){
         mIsDisconnecting = true;
     }
 
-    private void readStream(InputStreamReader in) {
+    private String readStream(InputStreamReader in) {
         try {
             StringBuilder data = new StringBuilder();
             char[] inputBuffer = new char[500];
@@ -56,9 +55,10 @@ public class SpookyBoxConnection {
                 data.append(inputBuffer,0,read);
                 read = in.read(inputBuffer);
             }
-            mReceiver.accept(data.toString());
+            return data.toString();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return null;
     }
 }

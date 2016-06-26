@@ -9,7 +9,7 @@ import android.widget.Button;
 import android.widget.GridView;
 
 import com.spookyjohnson.musicvisualizer.R;
-import com.spookyjohnson.musicvisualizer.defaultDisplay.GridViewAdapter;
+import com.spookyjohnson.musicvisualizer.functional.LifecycleActivity;
 import com.spookyjohnson.musicvisualizer.functional.Receiver;
 
 import java.util.ArrayList;

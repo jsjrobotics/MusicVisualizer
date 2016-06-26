@@ -1,8 +1,6 @@
 package com.spookyjohnson.musicvisualizer.kinect;
 
-import com.spookyjohnson.musicvisualizer.functional.LifecycleFragment;
 import com.spookyjohnson.musicvisualizer.functional.Receiver;
-import com.spookyjohnson.musicvisualizer.views.MainFragment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -11,32 +9,24 @@ import org.json.JSONObject;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class SpookyBoxPresenter {
-    private static final String URL = "http://192.168.1.11:8000";
+public class SpookyBoxReceiver {
     private static final String DATA = "DATA";
     private final URL mUrl;
-    private final SpookyBoxView mView;
+    private final Receiver<int[][]> mRgbReceiver;
     private SpookyBoxConnection mSpookyBoxConnection;
     private boolean mIsConnected = false;
-    private final Receiver<String> mReceiver;
+    private final Receiver<String> mDataReceiver;
     private Thread mThread;
+    private boolean mDisconnect = false;
 
-    public SpookyBoxPresenter(LifecycleFragment fragment, SpookyBoxView view){
-        mView = view;
+    public SpookyBoxReceiver(Receiver<int[][]> rgbReceiver, String url){
+        mRgbReceiver = rgbReceiver;
         try {
-            mUrl = new URL(URL);
+            mUrl = new URL(url);
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Failed to build url: "+e);
         }
-        mReceiver = buildReceiver();
-        mView.addOnConnectListener(getClickListener());
-        fragment.getLifecycle().addOnResumeListener(f -> {
-            mView.enableConnectButton();
-        });
-        fragment.getLifecycle().addOnPauseListener(f -> {
-            mSpookyBoxConnection.disconnect();
-        });
-
+        mDataReceiver = buildReceiver();
     }
 
     private Receiver<String> buildReceiver() {
@@ -46,7 +36,7 @@ public class SpookyBoxPresenter {
                 JSONArray matrixArray = received.getJSONArray(DATA);
                 for(int index = 0; index < matrixArray.length(); index++){
                     int[][] rgbMatrix = transformToRgbMatrix(matrixArray.getJSONArray(index));
-                    mView.drawDownscaledMatrix(rgbMatrix);
+                    mRgbReceiver.accept(rgbMatrix);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -74,32 +64,29 @@ public class SpookyBoxPresenter {
     }
 
     public void disconnect(){
+        mDisconnect = true;
         if(mSpookyBoxConnection != null){
             mSpookyBoxConnection.disconnect();
         }
     }
 
-    public Receiver<Void> getClickListener(){
-        return ignored -> {
-            if(mIsConnected){
-                return;
+    public void connect(){
+        if(mIsConnected){
+            return;
+        }
+        mDisconnect = false;
+        mIsConnected = true;
+        mThread = new Thread(() -> {
+            while(!mDisconnect){
+                startConnection();
             }
-            mIsConnected = true;
-            mThread = new Thread(() -> {
-                for(int index = 0; index < 100;){
-                    onConnectClicked();
-                }
-                mIsConnected = false;
-                mView.enableConnectButton();
-            });
-
-            mView.disableConnectButton();
-            mThread.start();
-        };
+            mIsConnected = false;
+        });
+        mThread.start();
     }
 
-    private void onConnectClicked() {
-        mSpookyBoxConnection = new SpookyBoxConnection(mUrl, mReceiver);
+    private void startConnection() {
+        mSpookyBoxConnection = new SpookyBoxConnection(mUrl, mDataReceiver);
         mSpookyBoxConnection.connect();
     }
 }

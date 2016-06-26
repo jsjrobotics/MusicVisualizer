@@ -12,7 +12,7 @@
  * the License.
  */
 
-package com.spookyjohnson.musicvisualizer.defaultDisplay;
+package com.spookyjohnson.musicvisualizer.views;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,13 +20,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.spookyjohnson.musicvisualizer.functional.LifecycleFragment;
 import com.spookyjohnson.musicvisualizer.kinect.SpookyBoxPresenter;
 import com.spookyjohnson.musicvisualizer.kinect.SpookyBoxView;
 
-public class MainFragment extends android.app.Fragment {
+public class MainFragment extends LifecycleFragment {
     private SpookyBoxPresenter mSpookyBoxPresenter;
 
-    private Button mConnect;
     private SpookyBoxView mView;
 
     @Override
@@ -44,7 +44,7 @@ public class MainFragment extends android.app.Fragment {
     @Override
     public void onResume(){
         super.onResume();
-        mSpookyBoxPresenter = new SpookyBoxPresenter(mView, "http://192.168.1.11:8000");
+        mSpookyBoxPresenter = new SpookyBoxPresenter(this,mView);
     }
 
 }
