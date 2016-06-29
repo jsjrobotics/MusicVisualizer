@@ -15,7 +15,7 @@ public class SpookyDisplay extends GLSurfaceView {
 
     public SpookyDisplay(LifecycleActivity activity) {
         super(activity);
-        mOpenGlPresenter = new OpenGlPresenter();
+        mOpenGlPresenter = new OpenGlPresenter(false);
         setEGLContextClientVersion(2);
         setRenderer(mOpenGlPresenter.getRenderer());
         activity.getLifecycle().addOnResumeListener(mOpenGlPresenter.getOnResumeListener());

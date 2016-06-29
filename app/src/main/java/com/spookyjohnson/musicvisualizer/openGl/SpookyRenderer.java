@@ -10,19 +10,27 @@ import javax.microedition.khronos.opengles.GL10;
 public class SpookyRenderer implements GLSurfaceView.Renderer {
 
     private static final float INCREMENT_FACTOR = 0.1F;
+    private final boolean mSpookyConnectionEnabled;
     private Triangle mTriangle;
+    private Cube mCube;
     // mMVPMatrix is an abbreviation for "Model View Projection Matrix"
     private final float[] mMVPMatrix = new float[16];
     private final float[] mProjectionMatrix = new float[16];
     private final float[] mViewMatrix = new float[16];
     private float[] mRotationMatrix = new float[16];
-    private float mAngle = 0.0f;
+    private volatile float mAngle = 0.0f;
+    private volatile float mEyeXPosition = 0f;
+
+    public SpookyRenderer(boolean spookyConnectionEnabled) {
+        mSpookyConnectionEnabled = spookyConnectionEnabled;
+    }
 
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         mTriangle = new Triangle();
+        mCube = new Cube();
 
     }
 
@@ -40,16 +48,20 @@ public class SpookyRenderer implements GLSurfaceView.Renderer {
     public void onDrawFrame(GL10 gl) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         // Set the camera position (View matrix)
-        Matrix.setLookAtM(mViewMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
-
+        if(mSpookyConnectionEnabled){
+            Matrix.setLookAtM(mViewMatrix, 0, 0, 0f, -4f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+        } else {
+            Matrix.setLookAtM(mViewMatrix, 0, mEyeXPosition, 0f, -4f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+            mEyeXPosition = (mEyeXPosition + .01f) % 4;
+        }
         Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0, 0, -1.0f);
 
         // Calculate the projection and view transformation
-        float[] scratch = new float[16];
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
+        float[] scratch = new float[16];
         Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mRotationMatrix, 0);
 
-        mTriangle.draw(scratch);
+        mCube.draw(scratch);
     }
 
     public void incrementAngle() {

@@ -12,9 +12,11 @@ public class OpenGlPresenter {
     private final SpookyRenderer mRenderer;
     private final SpookyBoxReceiver mSpookyBoxReceiver;
     private final MotionToInput mMotionDetector;
+    private final boolean mSpookyConnectionEnabled;
 
-    public OpenGlPresenter(){
-        mRenderer = new SpookyRenderer();
+    public OpenGlPresenter(boolean spookyConnectionEnabled){
+        mSpookyConnectionEnabled = spookyConnectionEnabled;
+        mRenderer = new SpookyRenderer(mSpookyConnectionEnabled);
         mMotionDetector = new MotionToInput(getMotionReceiver());
         mSpookyBoxReceiver = new SpookyBoxReceiver(getRgbReceiver(), URL);
 
@@ -42,10 +44,18 @@ public class OpenGlPresenter {
     }
 
     public Receiver<Activity> getOnPauseListener() {
-        return activity -> mSpookyBoxReceiver.disconnect();
+        return activity -> {
+            if(mSpookyConnectionEnabled){
+                mSpookyBoxReceiver.disconnect();
+            }
+        };
     }
 
     public Receiver<Activity> getOnResumeListener() {
-        return activity -> mSpookyBoxReceiver.connect();
+        return activity -> {
+            if(mSpookyConnectionEnabled){
+                mSpookyBoxReceiver.connect();
+            }
+        };
     }
 }
